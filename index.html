@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Générateur d'étiquettes - Terrasses de l'Avenue</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+  </head>
+  <body class="container">
+    <h1 class="text-primary text-center">Générateur d'étiquettes - Terrasses de l'Avenue</h1>
+    <form>
+        <div class="mb-3">
+          <label for="texteEtiquette" class="form-label">Texte de l'étiquette</label>
+          <textarea class="form-control" id="texteEtiquette" name="texteEtiquette" placeholder="M. MOULIA Bastien\nB62 - 6ème étage" required="required"></textarea>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="logoStopPub" name="logoStopPub" value="true" checked>
+          <label class="form-check-label" for="logoStopPub">Logo StopPub</label>
+        </div>
+    </form>
+    <canvas id="canvas" class="border border-2" width="930" height="230"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+    <script>
+
+        var textAreas = document.getElementsByTagName('textarea');
+        Array.prototype.forEach.call(textAreas, function(elem) {
+            elem.placeholder = elem.placeholder.replace(/\\n/g, '\n');
+        });
+
+        const canvas = document.querySelector('#canvas');
+        const ctx = canvas.getContext('2d');
+        const width = 960;
+        const heigh = 230;
+        const imageWidth = 230;
+        let texteEtiquette = '';
+        let logoStopPub = true;
+
+        const generateCanvas = () => {
+            console.log('generateCanvas', texteEtiquette, logoStopPub);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let center = width / 2;
+            let textWidth = width;
+            if (logoStopPub) {
+                let img = new Image();
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, imageWidth, imageWidth);
+                };
+                img.src = 'logo-stop-pub.png';
+                textWidth = width - imageWidth;
+                center = textWidth / 2 + imageWidth;
+            }
+            ctx.textAlign = 'center';
+            let fontSize;
+            let lineStart;
+            let lineDelta;
+
+            const lines = texteEtiquette.split('\n');
+            switch (lines.length) {
+                case 1:
+                    fontSize = 60;
+                    lineStart = 125;
+                    lineDelta = 0;
+                    break;
+                case 2:
+                    fontSize = 60;
+                    lineStart = 95;
+                    lineDelta = 80;
+                    break;
+                case 3:
+                    fontSize = 50;
+                    lineStart = 60;
+                    lineDelta = 65;
+                    break;
+                default:
+                    fontSize = 40;
+                    lineStart = 50;
+                    lineDelta = 50;
+                    break;
+                    
+            }
+            ctx.font = fontSize + 'px sans-serif';
+
+            
+            lines.forEach((line, index) => {
+                ctx.fillText(line, center, lineStart + lineDelta * index, textWidth);
+            })
+        }
+
+       
+        document.querySelector('#texteEtiquette').addEventListener('input', () => {
+            texteEtiquette = document.querySelector('#texteEtiquette').value;
+            generateCanvas();
+        });
+        document.querySelector('#logoStopPub').addEventListener('change', (change) => {
+            logoStopPub = change.target.checked;
+            generateCanvas();
+        });
+        generateCanvas();
+    </script>
+  </body>
+</html>
